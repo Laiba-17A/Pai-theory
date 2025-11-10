@@ -1,45 +1,59 @@
-
-print("Name: Laiba Javed")
-print("ID: 24K-0014")
-print("============================= Question 4 =========================")
-print(" ")
-
 class Image:
-    def __init__(self, pixelData):
-        self.pixelData = pixelData
+    def __init__(self, px):
+        self.pixelData = px
 
-    def applyTransformation(self, transformationFunc):
-        self.pixelData = transformationFunc(self.pixelData)
+    def applyTrans(self, tfn):
+        self.pixelData = tfn(self.pixelData)
 
     def getCopy(self):
-        return Image([[value for value in row] for row in self.pixelData])
+        newPx = []
+        for row in self.pixelData:
+            newPx.append(row[:])
+        return Image(newPx)
 
 
-def flipHorizontal(pixelData):
-    return [row[::-1] for row in pixelData]
+def flipH(px):
+    newPx = []
+    for row in px:
+        newPx.append(row[::-1])
+    return newPx
 
 
-def adjustBrightness(pixelData, brightnessValue):
-    return [[value + brightnessValue for value in row] for row in pixelData]
+def bright(px, val):
+    newPx = []
+    for row in px:
+        newRow = []
+        for v in row:
+            newRow.append(v + val)
+        newPx.append(newRow)
+    return newPx
 
 
-def rotateNinetyDegrees(pixelData):
-    return [list(row) for row in zip(*pixelData[::-1])]
+def rot90(px):
+    rows = len(px)
+    cols = len(px[0])
+    newPx = []
+    for c in range(cols):
+        newRow = []
+        for r in range(rows - 1, -1, -1):
+            newRow.append(px[r][c])
+        newPx.append(newRow)
+    return newPx
 
 
 class AugmentationPipeline:
     def __init__(self):
-        self.transformations = []
+        self.trans = []
 
-    def addTransformation(self, transformFunc):
-        self.transformations.append(transformFunc)
+    def addTrans(self, tfn):
+        self.trans.append(tfn)
 
-    def processImage(self, originalImage):
+    def run(self, img):
         results = []
-        for func in self.transformations:
-            imgCopy = originalImage.getCopy()
-            imgCopy.applyTransformation(func)
-            results.append(imgCopy)
+        for tfn in self.trans:
+            cp = img.getCopy()
+            cp.applyTrans(tfn)
+            results.append(cp)
         return results
 
 
@@ -49,13 +63,13 @@ originalPixels = [
 ]
 
 img = Image(originalPixels)
-pipeline = AugmentationPipeline()
+pipe = AugmentationPipeline()
 
-pipeline.addTransformation(flipHorizontal)
-pipeline.addTransformation(lambda data: adjustBrightness(data, 20))
-pipeline.addTransformation(rotateNinetyDegrees)
+pipe.addTrans(flipH)
+pipe.addTrans(lambda px: bright(px, 20))
+pipe.addTrans(rot90)
 
-augmentedImages = pipeline.processImage(img)
+results = pipe.run(img)
 
-for i, newImg in enumerate(augmentedImages, start=1):
-    print(f"Augmented Image {i}: {newImg.pixelData}")
+for i, r in enumerate(results, 1):
+    print(f"Augmented Image {i}: {r.pixelData}")
