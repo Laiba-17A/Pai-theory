@@ -5,28 +5,28 @@ print("============================= Question 3 =========================")
 print(" ")
 
 class Package:
-    def __init__(self, packageId, weightInKg):
-        self.packageId = packageId
-        self.weightInKg = weightInKg
+    def __init__(self, pid, wgt):
+        self.pId = pid
+        self.wgt = wgt
 
 
 class Drone:
-    def __init__(self, droneId, maxLoadInKg):
+    def __init__(self, droneId, maxload):
         self.droneId = droneId
-        self.maxLoadInKg = maxLoadInKg
+        self.maxload = maxload
         self.__status = 'idle'
-        self.currentPackage = None
+        self.currP = None
 
     def getStatus(self):
         return self.__status
 
-    def setStatus(self, newStatus):
-        if newStatus in ['idle', 'delivering', 'charging']:
-            self.__status = newStatus
+    def setStatus(self, newS):
+        if newS in ['idle', 'delivering', 'charging']:
+            self.__status = newS
 
-    def assignPackage(self, packageObj):
-        if self.__status == 'idle' and packageObj.weightInKg <= self.maxLoadInKg:
-            self.currentPackage = packageObj
+    def assignPackage(self, p):
+        if self.__status == 'idle' and p.wgt <= self.maxload:
+            self.currP = p
             self.setStatus('delivering')
             return True
         return False
@@ -35,21 +35,21 @@ class Drone:
 class FleetManager:
     def __init__(self):
         self.drones = {}
-        self.pendingPackages = []
+        self.pendingP = []
 
     def addDrone(self, drone):
         self.drones[drone.droneId] = drone
 
     def addPackage(self, package):
-        self.pendingPackages.append(package)
+        self.pendingP.append(package)
 
     def dispatchJobs(self):
         for drone in self.drones.values():
-            if drone.getStatus() == 'idle' and self.pendingPackages:
-                pkg = self.pendingPackages.pop(0)
-                assigned = drone.assignPackage(pkg)
+            if drone.getStatus() == 'idle' and self.pendingP:
+                pack = self.pendingP.pop(0)
+                assigned = drone.assignPackage(pack)
                 if not assigned:
-                    self.pendingPackages.insert(0, pkg)
+                    self.pendingPackages.insert(0, pack)
 
     def simulationTick(self):
         for drone in self.drones.values():
@@ -59,23 +59,23 @@ class FleetManager:
                 drone.setStatus('idle')
 
 
-manager = FleetManager()
+mang = FleetManager()
 d1 = Drone('D1', 5)
 d2 = Drone('D2', 10)
-manager.addDrone(d1)
-manager.addDrone(d2)
+mang.addDrone(d1)
+mang.addDrone(d2)
 
 p1 = Package('P1', 4)
 p2 = Package('P2', 7)
 p3 = Package('P3', 12)
 
-manager.addPackage(p1)
-manager.addPackage(p2)
-manager.addPackage(p3)
+mang.addPackage(p1)
+mang.addPackage(p2)
+mang.addPackage(p3)
 
-manager.dispatchJobs()
-manager.simulationTick()
-manager.simulationTick()
+mang.dispatchJobs()
+mang.simulationTick()
+mang.simulationTick()
 
-for d in manager.drones.values():
+for d in mang.drones.values():
     print(d.droneId, d.getStatus())
