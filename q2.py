@@ -4,7 +4,7 @@ print("ID: 24K-0014")
 print("============================= Question 2 =========================")
 print(" ")
 
-postsList = [
+postslist = [
     {'id': 1, 'text': "I LOVE the new #GutPhone! Battery life is amazing."},
     {'id': 2, 'text': "My #GutPhone is a total disaster. The screen is already broken!"},
     {'id': 3, 'text': "Worst customer service ever from @GutPhoneSupport. Avoid!"},
@@ -17,49 +17,49 @@ POSITIVE_WORDS = {'love', 'amazing', 'great', 'helpful', 'resolved'}
 NEGATIVE_WORDS = {'disaster', 'broken', 'bad', 'worst', 'avoid'}
 
 
-def preprocessText(text, punctuationList, stopwordsSet):
+def preprocessText(text, punclist, sw):
     text = text.lower()
-    for p in punctuationList:
+    for p in punclist:
         text = text.replace(p, '')
     words = text.split()
     filtered = []
     for w in words:
-        if w not in stopwordsSet:
+        if w not in sw:
             filtered.append(w)
     return filtered
 
 
-def analyzePosts(postsList, punctuation, stopwords, positive, negative):
+def analyzePosts(postsList, punc, stop, pos, negt):
     analyzed = []
     for post in postsList:
-        processed = preprocessText(post['text'], punctuation, stopwords)
+        processed = preprocessText(post['text'], punc, stop)
         score = 0
         for word in processed:
-            if word in positive:
+            if word in pos:
                 score += 1
-            elif word in negative:
+            elif word in negt:
                 score -= 1
         analyzed.append({
             'id': post['id'],
             'text': post['text'],
-            'processedText': processed,
+            'processedtext': processed,
             'score': score
         })
     return analyzed
 
 
-def getFlaggedPosts(scoredPosts, sentimentThreshold=-1):
+def getFlaggedPosts(sposts, st=-1):
     flagged = []
-    for post in scoredPosts:
-        if post['score'] <= sentimentThreshold:
+    for post in sposts:
+        if post['score'] <= st:
             flagged.append(post)
     return flagged
 
 
-def findNegativeTopics(flaggedPosts):
+def findNegativeTopics(fposts):
     topics = {}
-    for post in flaggedPosts:
-        for word in post['processedText']:
+    for post in fposts:
+        for word in post['processedtext']:
             if word.startswith('#') or word.startswith('@'):
                 if word in topics:
                     topics[word] += 1
@@ -68,10 +68,10 @@ def findNegativeTopics(flaggedPosts):
     return topics
 
 
-scoredPosts = analyzePosts(postsList, PUNCTUATION_CHARS, STOPWORDS_SET, POSITIVE_WORDS, NEGATIVE_WORDS)
-flaggedPosts = getFlaggedPosts(scoredPosts, sentimentThreshold=-1)
-negativeTopics = findNegativeTopics(flaggedPosts)
+s = analyzePosts(postslist, PUNCTUATION_CHARS, STOPWORDS_SET, POSITIVE_WORDS, NEGATIVE_WORDS)
+f = getFlaggedPosts(s,-1)
+n = findNegativeTopics(f)
 
-print("Analyzed Posts:\n", scoredPosts)
-print("\nFlagged Negative Posts:\n", flaggedPosts)
-print("\nTrending Negative Topics:\n", negativeTopics)
+print("Analyzed Posts:\n", s)
+print("\nFlagged Negative Posts:\n", f)
+print("\nTrending Negative Topics:\n", n)
