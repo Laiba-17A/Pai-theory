@@ -5,10 +5,10 @@ print("============================= Question 2 =========================")
 print(" ")
 
 postsList = [
-    {'id': 1, 'text': "I LOVE the new #GulPhone! Battery life is amazing."},
-    {'id': 2, 'text': "My #GulPhone is a total disaster. The screen is already broken!"},
-    {'id': 3, 'text': "Worst customer service ever from @GulPhoneSupport. Avoid!"},
-    {'id': 4, 'text': "The @GulPhoneSupport team was helpful and resolved my issue. Great service!"}
+    {'id': 1, 'text': "I LOVE the new #GutPhone! Battery life is amazing."},
+    {'id': 2, 'text': "My #GutPhone is a total disaster. The screen is already broken!"},
+    {'id': 3, 'text': "Worst customer service ever from @GutPhoneSupport. Avoid!"},
+    {'id': 4, 'text': "The @GutPhoneSupport team was helpful and resolved my issue. Great service!"}
 ]
 
 PUNCTUATION_CHARS = ['.', ',', '!', '?', ':', ';', "'", '"']
@@ -22,11 +22,16 @@ def preprocessText(text, punctuationList, stopwordsSet):
     for p in punctuationList:
         text = text.replace(p, '')
     words = text.split()
-    return [w for w in words if w not in stopwordsSet]
+    filtered = []
+    for w in words:
+        if w not in stopwordsSet:
+            filtered.append(w)
+    return filtered
 
 
 def analyzePosts(postsList, punctuation, stopwords, positive, negative):
-    def evaluate(post):
+    analyzed = []
+    for post in postsList:
         processed = preprocessText(post['text'], punctuation, stopwords)
         score = 0
         for word in processed:
@@ -34,12 +39,21 @@ def analyzePosts(postsList, punctuation, stopwords, positive, negative):
                 score += 1
             elif word in negative:
                 score -= 1
-        return {'id': post['id'], 'text': post['text'], 'processedText': processed, 'score': score}
-    return list(map(lambda p: evaluate(p), postsList))
+        analyzed.append({
+            'id': post['id'],
+            'text': post['text'],
+            'processedText': processed,
+            'score': score
+        })
+    return analyzed
 
 
 def getFlaggedPosts(scoredPosts, sentimentThreshold=-1):
-    return [p for p in scoredPosts if p['score'] <= sentimentThreshold]
+    flagged = []
+    for post in scoredPosts:
+        if post['score'] <= sentimentThreshold:
+            flagged.append(post)
+    return flagged
 
 
 def findNegativeTopics(flaggedPosts):
@@ -47,7 +61,10 @@ def findNegativeTopics(flaggedPosts):
     for post in flaggedPosts:
         for word in post['processedText']:
             if word.startswith('#') or word.startswith('@'):
-                topics[word] = topics.get(word, 0) + 1
+                if word in topics:
+                    topics[word] += 1
+                else:
+                    topics[word] = 1
     return topics
 
 
